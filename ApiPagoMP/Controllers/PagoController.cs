@@ -49,12 +49,9 @@ namespace ApiPagoMP.Controllers
 
                         if (entrada.Referencia.Equals("SL202009000015")) {
                             return Ok(new {
-                                exitoso = false,
-                                nombreCliente = String.Empty,
-                                montoMinimo = 0,
-                                montoMaximo = 0,
+                                exitoso = false,                                
                                 codigoError = "01",
-                                mensajeError = "La referencia está cancelada"
+                                mensajeError = "Referencia inválida"
                             });
                         }
 
@@ -62,10 +59,7 @@ namespace ApiPagoMP.Controllers
                         {
                             return Ok(new
                             {
-                                exitoso = false,
-                                nombreCliente = String.Empty,
-                                montoMinimo = 0,
-                                montoMaximo = 0,
+                                exitoso = false,                                
                                 codigoError = "02",
                                 mensajeError = "Error general"
                             });
@@ -75,10 +69,7 @@ namespace ApiPagoMP.Controllers
                         {
                             return Ok(new
                             {
-                                exitoso = false,
-                                nombreCliente = String.Empty,
-                                montoMinimo = 0,
-                                montoMaximo = 0,
+                                exitoso = false,                                
                                 codigoError = "03",
                                 mensajeError = "Comercio no autorizado"
                             });
@@ -88,10 +79,7 @@ namespace ApiPagoMP.Controllers
                         {
                             return Ok(new
                             {
-                                exitoso = false,
-                                nombreCliente = String.Empty,
-                                montoMinimo = 0,
-                                montoMaximo = 0,
+                                exitoso = false,                                
                                 codigoError = "04",
                                 mensajeError = "Servicio en mantenimiento"
                             });
@@ -101,10 +89,7 @@ namespace ApiPagoMP.Controllers
                         {
                             return Ok(new
                             {
-                                exitoso = false,
-                                nombreCliente = String.Empty,
-                                montoMinimo = 0,
-                                montoMaximo = 0,
+                                exitoso = false,                               
                                 codigoError = "05",
                                 mensajeError = "Error no definido"
                             });
@@ -153,6 +138,15 @@ namespace ApiPagoMP.Controllers
                     }
                     else if (entrada.Evento.Equals(Constantes.NOTIFICAR_PAGO))
                     {
+                        if (entrada.Referencia.Equals("SL202009000019") &&
+                            entrada.Comercio.Equals("5001")){
+                            
+                            return Ok(new
+                            {
+                                exitoso = false,
+                                registradoAnteriormente = true
+                            });
+                        }
                         if (!entrada.Referencia.Equals("SL202009000014") ||
                             !entrada.Comercio.Equals("5001") ||
                             entrada.NumeroTransaccion.Equals(String.Empty) ||
@@ -160,7 +154,8 @@ namespace ApiPagoMP.Controllers
                         {
                             return Ok(new
                             {
-                                exitoso = false
+                                exitoso = false,
+                                registradoAnteriormente = false
                             });
                         }
                         salida = this._iPagoService.validarReferencia(entrada);
@@ -168,20 +163,19 @@ namespace ApiPagoMP.Controllers
                         {
                             return Ok(new
                             {
-                                exitoso = false
+                                exitoso = false,
+                                registradoAnteriormente = false
                             });
                         }
 
                         return Ok(new
                         {
-                            exitoso = true
+                            exitoso = true,
+                            registradoAnteriormente = false
                         });
                     }else {
                         return Ok(new { 
-                            exitoso = false,
-                            nombreCliente = String.Empty,
-                            montoMinimo = 0,
-                            montoMaximo = 0,
+                            exitoso = false,                           
                             codigoError = "06",
                             mensajeError = "Método inválido"
                         });
