@@ -138,7 +138,7 @@ namespace ApiPagoMP.Controllers
                     }
                     else if (entrada.Evento.Equals(Constantes.NOTIFICAR_PAGO))
                     {
-                        if (entrada.Referencia.Equals("SL202009000019") &&
+                        if (entrada.Referencia.Equals("SL202009000019") && //
                             entrada.Comercio.Equals("5001")){
                             
                             return Ok(new
