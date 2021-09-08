@@ -51,7 +51,16 @@
         public const string VALIDAR_REFERENCIA = "validarReferencia";
         public const string AUTORIZAR_MONTO = "autorizarMonto";
         public const string NOTIFICAR_PAGO = "notificarPago";
-    
+
+        //Codigo de Errores
+        public const string ERROR_REFERENCIA_NO_VALIDA      = "01";
+        public const string ERROR_GENERAL                   = "02";
+        public const string ERROR_COMERCIO_NO_AUTORIZADO    = "03";
+        public const string ERROR_SERV_EN_MANTENIMIENTO     = "04";
+        public const string ERROR_NO_DEFINIDO               = "05";
+        public const string ERROR_METODO_INVALIDO           = "06";
+        
+        public const string SISTEMA                         = "API_PAGO_MP";
 
 
 

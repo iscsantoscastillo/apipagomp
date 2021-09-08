@@ -1,21 +1,31 @@
 USE [SoftCredito]
 GO
-
+/****** Object:  StoredProcedure [dbo].[sp_pmp_pago_consultar]    Script Date: 08/09/2021 12:47:16 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE PROC sp_pmp_pago_consultar 
+ALTER PROC [dbo].[sp_pmp_pago_consultar] 
 -- ALTER PROC sp_pmp_pago_consultar
 	@CLAVE_REFERENCIA VARCHAR(20)
 AS
 
-DECLARE @TABLE TABLE (
-	cliente VARCHAR(50),
-	monto_min DECIMAL(18,2),
-	monto_max DECIMAL(18,2)
-)
+SELECT referencia, 
+	monto_min, 
+	monto_max, 
+	estatus, 
+	cliente 
+FROM pagomp_referencias 
+WHERE referencia = @CLAVE_REFERENCIA AND 
+	estatus = 1
 
-INSERT INTO @TABLE VALUES('Juan Francisco Flores García', 150,10000)
-
-SELECT cliente, monto_min, monto_max FROM @TABLE;
+--SELECT 
+--	referencia
+--	,monto_minimo AS monto_min
+--	,monto_maximo AS monto_max
+--	,'Juan Francisco Flores García' as cliente
+--FROM mpf_ventas_referencia_unica 
+--WHERE 
+--	referencia = @CLAVE_REFERENCIA
+--	AND plataforma ='WILLYS'
+--	AND estatus = 1

@@ -17,5 +17,33 @@ namespace ApiPagoMP.Services
         {
             return this._IPagoRepo.validarReferencia(entrada);
         }
+
+        public Comercio GetComercio(string comercioID) {
+            return this._IPagoRepo.GetComercio(comercioID);
+        }
+
+        public Comercio GetComercio(string usuario, string contrasena)
+        {
+            return this._IPagoRepo.GetComercio(usuario, contrasena);
+        }
+
+        public void GrabarBitacora(string json) {
+            this._IPagoRepo.GrabarBitacora(json);
+        }
+
+        public Error ConsultarError(string error)
+        {
+            return this._IPagoRepo.ConsultarError(error);
+        }
+
+        public bool GrabarPago(Entrada entrada)
+        {
+            return this._IPagoRepo.GrabarPago(entrada);
+        }
+
+        public bool ExisteNotiPago(Entrada entrada)
+        {
+            return this._IPagoRepo.ExisteNotiPago(entrada);
+        }
     }
 }

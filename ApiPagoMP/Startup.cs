@@ -29,14 +29,13 @@ namespace ApiPagoMP
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
-
+        {            
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ApiPagoMP", Version = "v1" });
             });
-
+            
             //Basic Auth
             services.AddAuthentication("BasicAuthentication")
             .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
@@ -44,6 +43,7 @@ namespace ApiPagoMP
             //Inyección de Dependencias
             services.AddTransient<IPagoService, PagoServiceImpl>();
             services.AddTransient<IPagoRepo, PagoRepoImpl>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
