@@ -24,25 +24,38 @@ namespace ApiPagoMP.Repository
                 using (SqlConnection cnn = new SqlConnection(conexion.cnCadena(Constantes.BD_SOFT)))
                 {
                     cnn.Open();
-                    string sp = "sp_pmp_pago_consultar";
+                    string sp = "sp_mpf_referencia_unica_validate";
                     using (SqlCommand sqlCommand = new SqlCommand(sp, cnn))
                     {
                         sqlCommand.CommandType = CommandType.StoredProcedure;
                         
-                        sqlCommand.Parameters.Add("@CLAVE_REFERENCIA", SqlDbType.VarChar);
-                        sqlCommand.Parameters["@CLAVE_REFERENCIA"].Value = entrada.Referencia;
+                        sqlCommand.Parameters.Add("@referencia", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@referencia"].Value = entrada.Referencia;
+
+                        sqlCommand.Parameters.Add("@plataforma", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@plataforma"].Value = Constantes.PLATAFORMA_WILLYS;
+
+                        sqlCommand.Parameters.Add("@monto_referencia", SqlDbType.Decimal);
+                        sqlCommand.Parameters["@monto_referencia"].Value = 0;
                         
                         using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
                         {
                             if (sqlDataReader.HasRows)
                             {
                                 log.Info("Se encontró la información correctamente para la validación de la referencia");
-                                salida = new Salida();
+                                
                                 while (sqlDataReader.Read())
                                 {
-                                    salida.NombreCliente = sqlDataReader["cliente"].ToString();
-                                    salida.MontoMinimo = Decimal.Parse(sqlDataReader["monto_min"].ToString());
-                                    salida.MontoMaximo = Decimal.Parse(sqlDataReader["monto_max"].ToString());
+                                    bool payable = Int32.Parse(sqlDataReader["payable"].ToString()) == 1 ? true : false;
+
+                                    if (payable) {
+                                        salida = new Salida();
+
+                                        salida.NombreCliente = sqlDataReader["cliente"].ToString();
+                                        salida.MontoMinimo = Decimal.Parse(sqlDataReader["min_amount"].ToString());
+                                        salida.MontoMaximo = Decimal.Parse(sqlDataReader["max_amount"].ToString());
+                                    }
+                                    
                                 }
                             }
                         }
@@ -57,6 +70,53 @@ namespace ApiPagoMP.Repository
             }
 
             return salida;
+        }
+        public bool EsMontoValido(Entrada entrada) {
+            bool esValido = false;
+            log.Info("Ingresando al método EsMontoValido");
+            Conexion conexion = new Conexion();
+            try
+            {
+                using (SqlConnection cnn = new SqlConnection(conexion.cnCadena(Constantes.BD_SOFT)))
+                {
+                    cnn.Open();
+                    string sp = "sp_mpf_referencia_unica_validate";
+                    using (SqlCommand sqlCommand = new SqlCommand(sp, cnn))
+                    {
+                        sqlCommand.CommandType = CommandType.StoredProcedure;
+
+                        sqlCommand.Parameters.Add("@referencia", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@referencia"].Value = entrada.Referencia;
+
+                        sqlCommand.Parameters.Add("@plataforma", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@plataforma"].Value = Constantes.PLATAFORMA_WILLYS;
+
+                        sqlCommand.Parameters.Add("@monto_referencia", SqlDbType.Decimal);
+                        sqlCommand.Parameters["@monto_referencia"].Value = entrada.MontoPago;
+
+                        using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
+                        {
+                            if (sqlDataReader.HasRows)
+                            {
+                                log.Info("Se encontró la información correctamente para la validación de la referencia");
+
+                                while (sqlDataReader.Read())
+                                {
+                                    esValido = Int32.Parse(sqlDataReader["payable"].ToString()) == 1 ? true : false;                                   
+                                }
+                            }
+                        }
+                    }
+                    log.Info("Ok al buscar EsMontoValido");
+                }
+            }
+            catch (SqlException ex)
+            {
+                log.Error("Ocurrió un error al momento de consultar la información en el servidor: " + ex.Message);
+                throw new Exception(ex.Message);
+            }
+
+            return esValido;
         }
 
         public Comercio GetComercio(string comercioID) {
@@ -260,9 +320,8 @@ namespace ApiPagoMP.Repository
                         sqlCommand.Parameters.Add("@TRANSACCION", SqlDbType.VarChar);
                         sqlCommand.Parameters["@TRANSACCION"].Value = entrada.NumeroTransaccion;
 
-                        sqlCommand.Parameters.Add("@FECHAHORATRX", SqlDbType.DateTime);
-                        DateTime fechaHoraTrx = new DateTime(entrada.FechaHoraTransaccion);
-                        sqlCommand.Parameters["@FECHAHORATRX"].Value = fechaHoraTrx;
+                        sqlCommand.Parameters.Add("@FECHAHORATRX", SqlDbType.BigInt);                                                
+                        sqlCommand.Parameters["@FECHAHORATRX"].Value = entrada.FechaHoraTransaccion;
                         
                         sqlCommand.Parameters.Add("@CLAVESUCURSAL", SqlDbType.VarChar);
                         sqlCommand.Parameters["@CLAVESUCURSAL"].Value = entrada.ClaveSucursal;
@@ -317,6 +376,61 @@ namespace ApiPagoMP.Repository
                                 log.Info("Se encontró la información correctamente.");
                             } 
                                                                                         
+                        }
+                    }
+                    log.Info("Ok al buscar la NotiPago");
+                }
+            }
+            catch (SqlException ex)
+            {
+                log.Error("Ocurrió un error al momento de consultar la información en el servidor: " + ex.Message);
+                throw new Exception(ex.Message);
+            }
+            return existe;
+        }
+        /// <summary>
+        /// Verifica si: transaccion ya existe, comercio ya existe, clave_sucursal ya existe y estatus=1. Entonces devuelve true
+        /// </summary>
+        /// <param name="entrada"></param>
+        /// <returns></returns>
+        public bool ExisteTransaccion(Entrada entrada) {
+            bool existe = false;
+
+            log.Info("Ingresando al método ExisteTransaccion");
+
+            Conexion conexion = new Conexion();
+            try
+            {
+                using (SqlConnection cnn = new SqlConnection(conexion.cnCadena(Constantes.BD_SOFT)))
+                {
+                    cnn.Open();
+                    string sp = "sp_pmp_pago_notipago_con_trx";
+                    using (SqlCommand sqlCommand = new SqlCommand(sp, cnn))
+                    {
+                        sqlCommand.CommandType = CommandType.StoredProcedure;
+
+                        sqlCommand.Parameters.Add("@TRANSACCION", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@TRANSACCION"].Value = entrada.NumeroTransaccion;
+
+                        sqlCommand.Parameters.Add("@COMERCIO", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@COMERCIO"].Value = entrada.Comercio;
+                        
+                        sqlCommand.Parameters.Add("@CLAVE_SUCURSAL", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@CLAVE_SUCURSAL"].Value = entrada.ClaveSucursal;
+                        
+                        sqlCommand.Parameters.Add("@REFERENCIA", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@REFERENCIA"].Value = entrada.Referencia;
+
+
+                        using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
+                        {
+                            existe = sqlDataReader.HasRows;
+
+                            if (existe)
+                            {
+                                log.Info("Se encontró la información correctamente.");
+                            }
+
                         }
                     }
                     log.Info("Ok al buscar la NotiPago");

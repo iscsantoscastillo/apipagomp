@@ -18,6 +18,10 @@ namespace ApiPagoMP.Services
             return this._IPagoRepo.validarReferencia(entrada);
         }
 
+        public bool EsMontoValido(Entrada entrada) {
+            return this._IPagoRepo.EsMontoValido(entrada);
+        }
+
         public Comercio GetComercio(string comercioID) {
             return this._IPagoRepo.GetComercio(comercioID);
         }
@@ -44,6 +48,9 @@ namespace ApiPagoMP.Services
         public bool ExisteNotiPago(Entrada entrada)
         {
             return this._IPagoRepo.ExisteNotiPago(entrada);
+        }
+        public bool ExisteTransaccion(Entrada entrada) {
+            return this._IPagoRepo.ExisteTransaccion(entrada);
         }
     }
 }

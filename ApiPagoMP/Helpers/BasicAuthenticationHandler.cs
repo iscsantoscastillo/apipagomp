@@ -54,12 +54,12 @@ namespace ApiPagoMP.Helpers
 
                 var token = authHeader.Parameter;
                                 
-                Conexion cnn = new Conexion();
-                string cadenaBasicAuth = cnn.stCadenaBasicAuth(Constantes.BASIC_AUTH_KEY);
-                if (token != null && token != String.Empty)
+                //Conexion cnn = new Conexion();
+                //string cadenaBasicAuth = cnn.stCadenaBasicAuth(Constantes.BASIC_AUTH_KEY);
+                if (comercio.NombreUsuario.Equals(usuario.Nombre) && comercio.Contrasena.Equals(usuario.Contrasena))
                 {
-                    if (token.Equals(cadenaBasicAuth))
-                    {
+                    //if (token.Equals(cadenaBasicAuth))
+                    //{
                         
                         var claims = new Claim[] {                        
                             new Claim(ClaimTypes.Name, "ok"),
@@ -68,7 +68,7 @@ namespace ApiPagoMP.Helpers
                         var principal = new ClaimsPrincipal(identity);
                         var ticket = new AuthenticationTicket(principal, Scheme.Name);
                         return AuthenticateResult.Success(ticket);
-                    }
+                    //}
                 }                
             }
             catch(Exception ex)

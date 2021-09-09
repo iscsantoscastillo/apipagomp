@@ -37,7 +37,7 @@ namespace ApiPagoMP.Controllers
         }
 
         [HttpPost("PagoMP")]
-        //[ApiExplorerSettings(IgnoreApi = true)]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Authorize]//Basic Auth
         public async Task<IActionResult> AsignarContrasenia([FromBody] JsonElement ent)
         {
@@ -190,62 +190,32 @@ namespace ApiPagoMP.Controllers
                             if (!comercio.NombreUsuario.Equals(usuario.Nombre) ||
                                 !comercio.Contrasena.Equals(usuario.Contrasena))
                             {
-
-                                //error = this._iPagoService.ConsultarError(Constantes.ERROR_COMERCIO_NO_AUTORIZADO);
-
                                 return Ok(new
                                 {
                                     exitoso = false
-                                    //codigoError = Constantes.ERROR_COMERCIO_NO_AUTORIZADO,
-                                    //mensajeError = error.Descripcion
                                 });
                             }
                         }else
-                        {
-                            //error = this._iPagoService.ConsultarError(Constantes.ERROR_COMERCIO_NO_AUTORIZADO);
+                        {                            
                             return Ok(new
                             {
-                                exitoso = false,
-                                //codigoError = Constantes.ERROR_COMERCIO_NO_AUTORIZADO,
-                                //mensajeError = error.Descripcion
+                                exitoso = false
                             });
                         }
 
-
-                        //if (!entrada.Referencia.Equals("SL202009000014") ||
-                        //    !entrada.Comercio.Equals("5001")) {
-                        //    return Ok(new
-                        //    {
-                        //        exitoso = false
-                        //    });
-                        //}
-
-                        salida = this._iPagoService.validarReferencia(entrada);
-                        if (salida is null)
+                        bool esValido = this._iPagoService.EsMontoValido(entrada);
+                        if (!esValido)
                         {
-                            //error = this._iPagoService.ConsultarError(Constantes.ERROR_REFERENCIA_NO_VALIDA);
                             return Ok(new
                             {
-                                exitoso = false,
-                                //codigoError = Constantes.ERROR_REFERENCIA_NO_VALIDA,
-                                //mensajeError = error.Descripcion
+                                exitoso = false                            
                             });
                         }
-                        else {
-                            if (entrada.MontoPago >= salida.MontoMinimo && entrada.MontoPago <= salida.MontoMaximo)
+                        else {                            
+                            return Ok(new
                             {
-                                return Ok(new
-                                {
-                                    exitoso = true
-                                });
-                            }
-                            else
-                            {
-                                return Ok(new
-                                {
-                                    exitoso = false
-                                });
-                            }
+                                exitoso = true
+                            });                                                            
                         }                                                                        
                     }
                     #endregion
@@ -253,6 +223,7 @@ namespace ApiPagoMP.Controllers
                     #region NOTIFICAR PAGO
                     else if (entrada.Evento.Equals(Constantes.NOTIFICAR_PAGO))
                     {
+                       
                         //Se valida el monto y que este no contenga centavos.
                         var x = entrada.MontoPago - Math.Truncate(entrada.MontoPago);
                         if (x > 0)
@@ -261,6 +232,14 @@ namespace ApiPagoMP.Controllers
                             {
                                 exitoso = false,
                                 registradoAnteriormente = false,
+                            });
+                        }
+
+                        if (!(entrada.MontoPago >= 1)) {
+                            return Ok(new
+                            {
+                                exitoso = false,
+                                registradoAnteriormente = false
                             });
                         }
 
@@ -279,35 +258,25 @@ namespace ApiPagoMP.Controllers
                             if (!comercio.NombreUsuario.Equals(usuario.Nombre) ||
                                 !comercio.Contrasena.Equals(usuario.Contrasena))
                             {
-
-                                //error = this._iPagoService.ConsultarError(Constantes.ERROR_COMERCIO_NO_AUTORIZADO);
-
                                 return Ok(new
                                 {
                                     exitoso = false,
-                                    registradoAnteriormente = false,
-                                    //codigoError = Constantes.ERROR_COMERCIO_NO_AUTORIZADO,
-                                    //mensajeError = error.Descripcion
+                                    registradoAnteriormente = false
                                 });
                             }
                         }
                         else
                         {
-                            //error = this._iPagoService.ConsultarError(Constantes.ERROR_COMERCIO_NO_AUTORIZADO);                            
                             return Ok(new
                             {
                                 exitoso = false,
-                                registradoAnteriormente = false,
-                                //codigoError = Constantes.ERROR_COMERCIO_NO_AUTORIZADO,
-                                //mensajeError = error.Descripcion
+                                registradoAnteriormente = false
                             });
 
                         }
-                        
-
-
-                        if (entrada.NumeroTransaccion.Equals(String.Empty) ||
-                            entrada.FechaHoraTransaccion <= 0)
+                       
+                        //Verificar que trx no esté vacía ni que fecha tenga cero o menos
+                        if (entrada.NumeroTransaccion.Equals(String.Empty))
                         {
                             return Ok(new
                             {
@@ -316,6 +285,27 @@ namespace ApiPagoMP.Controllers
                             });
                         }
 
+                        //Se verifica intervalo de fecha valido
+                        if (entrada.FechaHoraTransaccion <= 0) {
+                            return Ok(new
+                            {
+                                exitoso = false,
+                                registradoAnteriormente = false
+                            });
+                        }
+
+                        //Verifica si: transaccion ya existe, comercio ya existe, clave_sucursal ya existe, referencia ya existe y estatus=1.
+                        //Entonces devuelve true
+                        bool existeTrx = this._iPagoService.ExisteTransaccion(entrada);
+                        if (existeTrx) {
+                            return Ok(new
+                            {
+                                exitoso = false,
+                                registradoAnteriormente = true
+                            });
+                        }
+
+                        //Quizá este de más esta sección de referencia
                         salida = this._iPagoService.validarReferencia(entrada);
                         //salida es null si no encuentra datos de la referencia
                         if (salida is null)
@@ -337,16 +327,17 @@ namespace ApiPagoMP.Controllers
                                 });
                             }
                         }
-                        
+
                         //Se verifica si existeAnteriormente
-                        bool existe = this._iPagoService.ExisteNotiPago(entrada);
-                        if (existe) {
-                            return Ok(new
-                            {
-                                exitoso = false,
-                                registradoAnteriormente = true
-                            });
-                        }
+                        //bool existe = this._iPagoService.ExisteNotiPago(entrada);
+                        //if (existe)
+                        //{
+                        //    return Ok(new
+                        //    {
+                        //        exitoso = false,
+                        //        registradoAnteriormente = true
+                        //    });
+                        //}
 
                         bool grabo = this._iPagoService.GrabarPago(entrada);
                         return Ok(new
