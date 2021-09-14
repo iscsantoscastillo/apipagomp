@@ -40,7 +40,7 @@ namespace ApiPagoMP.Services
             return this._IPagoRepo.ConsultarError(error);
         }
 
-        public bool GrabarPago(Entrada entrada)
+        public int GrabarPago(Entrada entrada)
         {
             return this._IPagoRepo.GrabarPago(entrada);
         }
@@ -51,6 +51,15 @@ namespace ApiPagoMP.Services
         }
         public bool ExisteTransaccion(Entrada entrada) {
             return this._IPagoRepo.ExisteTransaccion(entrada);
+        }
+        public int GenerarAbono(Entrada entrada) {
+            return this._IPagoRepo.GenerarAbono(entrada);
+        }
+        public string ConsultarComercio(Entrada entrada) {
+            return this._IPagoRepo.ConsultarComercio(entrada);
+        }
+        public int ActualizarPago(Entrada entrada) {
+            return this._IPagoRepo.ActualizarPago(entrada);
         }
     }
 }

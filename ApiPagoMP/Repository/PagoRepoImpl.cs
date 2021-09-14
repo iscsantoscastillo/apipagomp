@@ -296,7 +296,8 @@ namespace ApiPagoMP.Repository
             return err;
         }
 
-        public bool GrabarPago(Entrada entrada) {
+        public int GrabarPago(Entrada entrada) {
+            int registro = 0;
             Conexion conexion = new Conexion();
             try
             {
@@ -329,10 +330,16 @@ namespace ApiPagoMP.Repository
                         sqlCommand.Parameters.Add("@USUARIOALTA", SqlDbType.VarChar);
                         sqlCommand.Parameters["@USUARIOALTA"].Value = Constantes.SISTEMA;
 
+                        SqlParameter outParm = new SqlParameter("@ID_DEVUELTO", SqlDbType.Int);
+                        outParm.Direction = ParameterDirection.Output;
+                        sqlCommand.Parameters.Add(outParm);
+
 
                         int afectacion = sqlCommand.ExecuteNonQuery();
 
-                        return afectacion > 0;
+                        registro = Int32.Parse(outParm.Value.ToString());
+
+                        return registro;
 
                     }
                     log.Info("Se grabó correctamente en Notificacion de Pagos");
@@ -442,6 +449,146 @@ namespace ApiPagoMP.Repository
                 throw new Exception(ex.Message);
             }
             return existe;
+        }
+        public int GenerarAbono(Entrada entrada) {
+            int registro = 0;
+
+            log.Info("Ingresando al método GenerarAbono");
+
+            Conexion conexion = new Conexion();
+            try
+            {
+                using (SqlConnection cnn = new SqlConnection(conexion.cnCadena(Constantes.BD_SOFT)))
+                {
+                    cnn.Open();
+                    string sp = "sp_sfc_generar_abono";
+                    using (SqlCommand sqlCommand = new SqlCommand(sp, cnn))
+                    {
+                        sqlCommand.CommandType = CommandType.StoredProcedure;                        
+
+                        sqlCommand.Parameters.Add("@clave_solicitud", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@clave_solicitud"].Value = entrada.Referencia;
+
+                        sqlCommand.Parameters.Add("@cve_sucursal", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@cve_sucursal"].Value = entrada.DescripcionComercio;
+
+                        sqlCommand.Parameters.Add("@cve_vendedor", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@cve_vendedor"].Value = entrada.IDDevuelto.ToString();
+                        
+                        sqlCommand.Parameters.Add("@caja", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@caja"].Value = "000005";
+
+                        sqlCommand.Parameters.Add("@total_pagado", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@total_pagado"].Value = entrada.MontoPago.ToString();
+
+                        sqlCommand.Parameters.Add("@cve_forma_pago", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@cve_forma_pago"].Value = "";
+
+                        using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
+                        {
+                            if (sqlDataReader.HasRows)
+                            {
+                                log.Info("Se encontró la información correctamente.");
+                                while (sqlDataReader.Read())
+                                {
+                                    registro = Int32.Parse(sqlDataReader["id_registro"].ToString());
+                                }                                
+                            }
+                        }
+                    }
+                    log.Info("Ok al buscar la NotiPago");
+                }
+            }
+            catch (SqlException ex)
+            {
+                log.Error("Ocurrió un error al momento de consultar la información en el servidor: " + ex.Message);
+                throw new Exception(ex.Message);
+            }
+            return registro;
+        }
+        public string ConsultarComercio(Entrada entrada) {            
+            log.Info("Ingresando al método ConsultarComercio");
+            string descripcion = null;
+            Conexion conexion = new Conexion();
+            try
+            {
+                using (SqlConnection cnn = new SqlConnection(conexion.cnCadena(Constantes.BD_SOFT)))
+                {
+                    cnn.Open();
+                    string sp = "sp_pmp_pago_comercio_con";
+                    using (SqlCommand sqlCommand = new SqlCommand(sp, cnn))
+                    {
+                        sqlCommand.CommandType = CommandType.StoredProcedure;
+
+                        sqlCommand.Parameters.Add("@COMERCIO", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@COMERCIO"].Value = entrada.Comercio;
+
+                        using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
+                        {
+                            if (sqlDataReader.HasRows)
+                            {
+                                log.Info("Se encontró la información correctamente.");
+                                
+                                while (sqlDataReader.Read())
+                                {
+
+                                    descripcion = sqlDataReader["descripcion"].ToString();
+
+                                }
+                            }
+                        }
+                    }
+                    log.Info("Ok al buscar el error");
+                }
+            }
+            catch (SqlException ex)
+            {
+                log.Error("Ocurrió un error al momento de consultar la información en el servidor: " + ex.Message);
+                throw new Exception(ex.Message);
+            }
+            return descripcion;
+        }
+        public int ActualizarPago(Entrada entrada) {
+            int filasAfectadas = 0;
+            Conexion conexion = new Conexion();
+            try
+            {
+                using (SqlConnection cnn = new SqlConnection(conexion.cnCadena(Constantes.BD_SOFT)))
+                {
+                    cnn.Open();
+                    string sp = "sp_pmp_pago_notipago_update";
+                    using (SqlCommand sqlCommand = new SqlCommand(sp, cnn))
+                    {
+                        sqlCommand.CommandType = CommandType.StoredProcedure;
+
+                        sqlCommand.Parameters.Add("@ID_PAGO", SqlDbType.Int);
+                        sqlCommand.Parameters["@ID_PAGO"].Value = entrada.IDDevuelto;
+
+                        sqlCommand.Parameters.Add("@AS_ID_ABONO", SqlDbType.BigInt);
+                        sqlCommand.Parameters["@AS_ID_ABONO"].Value = entrada.AsIDAbono;
+
+                        sqlCommand.Parameters.Add("@USUARIO_ENV_SC", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@USUARIO_ENV_SC"].Value = Constantes.SISTEMA;
+                       
+                        SqlParameter outParm = new SqlParameter("@FILAS_AFECTADAS", SqlDbType.Int);
+                        outParm.Direction = ParameterDirection.Output;
+                        sqlCommand.Parameters.Add(outParm);
+
+                        sqlCommand.ExecuteNonQuery();
+
+                        filasAfectadas = Int32.Parse(outParm.Value.ToString());
+
+                        return filasAfectadas;
+
+                    }
+                    log.Info("Se grabó correctamente en Notificacion de Pagos");
+                }
+            }
+            catch (SqlException ex)
+            {
+                log.Error("Error inesperado al actualiozar en ActualizarPago de Pagos " + ex.Message);
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

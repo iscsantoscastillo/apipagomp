@@ -14,8 +14,11 @@ namespace ApiPagoMP.Services
         public Comercio GetComercio(string usuario, string contrasena);
         public void GrabarBitacora(string json);
         public Error ConsultarError(string error);
-        public bool GrabarPago(Entrada entrada);
+        public int GrabarPago(Entrada entrada);
         public bool ExisteNotiPago(Entrada entrada);
         public bool ExisteTransaccion(Entrada entrada);
+        public int GenerarAbono(Entrada entrada);
+        public string ConsultarComercio(Entrada entrada);
+        public int ActualizarPago(Entrada entrada);
     }
 }

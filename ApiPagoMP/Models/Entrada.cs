@@ -9,10 +9,13 @@ namespace ApiPagoMP.Models
     {
         public string Referencia { get; set; }
         public string Comercio { get; set; }
+        public string DescripcionComercio { get; set; }                
         public decimal MontoPago { get; set; }
         public string NumeroTransaccion { get; set; }
         public long FechaHoraTransaccion { get; set; }
         public string ClaveSucursal { get; set; }
         public string Evento { get; set; }
+        public int IDDevuelto { get; set; }
+        public int AsIDAbono { get; set; }
     }
 }

@@ -328,23 +328,37 @@ namespace ApiPagoMP.Controllers
                             }
                         }
 
-                        //Se verifica si existeAnteriormente
-                        //bool existe = this._iPagoService.ExisteNotiPago(entrada);
-                        //if (existe)
-                        //{
-                        //    return Ok(new
-                        //    {
-                        //        exitoso = false,
-                        //        registradoAnteriormente = true
-                        //    });
-                        //}
+                        //Consultar descripcion(nombre) del comercio
+                        string descComercio = this._iPagoService.ConsultarComercio(entrada);
+                        entrada.DescripcionComercio = descComercio;
 
-                        bool grabo = this._iPagoService.GrabarPago(entrada);
+                        //Se obtiene el id consecutivo de pagomp_pago
+                        int idDevuelto = this._iPagoService.GrabarPago(entrada);
+                        entrada.IDDevuelto = idDevuelto;
+
+                        try
+                        {
+                            int generado = this._iPagoService.GenerarAbono(entrada);
+                            if (generado > 0) {
+                                entrada.AsIDAbono = generado;
+                                int filasAfectadas = this._iPagoService.ActualizarPago(entrada);
+                            }
+                        }
+                        catch (Exception ex) {
+                            log.Error("Excepción al GenerarAbono: " + ex.Message);
+                            return Ok(new
+                            {                                
+                                exitoso = true,
+                                registradoAnteriormente = false
+                            }) ;
+                        }
+
                         return Ok(new
                         {
                             exitoso = true,
                             registradoAnteriormente = false
                         });
+                                         
                     }
                     #endregion
                     
