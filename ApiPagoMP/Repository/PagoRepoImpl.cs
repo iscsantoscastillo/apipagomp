@@ -476,7 +476,10 @@ namespace ApiPagoMP.Repository
                         sqlCommand.Parameters["@cve_vendedor"].Value = entrada.IDDevuelto.ToString();
                         
                         sqlCommand.Parameters.Add("@caja", SqlDbType.VarChar);
-                        sqlCommand.Parameters["@caja"].Value = "000005";
+                        sqlCommand.Parameters["@caja"].Value = "000006";
+                        
+                        sqlCommand.Parameters.Add("@referencia", SqlDbType.VarChar);
+                        sqlCommand.Parameters["@referencia"].Value = "RUWILLYS";
 
                         sqlCommand.Parameters.Add("@total_pagado", SqlDbType.VarChar);
                         sqlCommand.Parameters["@total_pagado"].Value = entrada.MontoPago.ToString();
