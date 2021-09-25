@@ -19,7 +19,7 @@ namespace ApiPagoMP.Repository
         public bool ExisteTransaccion(Entrada entrada);
 
         public int GenerarAbono(Entrada entrada);
-        public string ConsultarComercio(Entrada entrada);
+        public Entrada ConsultarComercio(Entrada entrada);
         public int ActualizarPago(Entrada entrada);
     }
 }

@@ -55,7 +55,7 @@ namespace ApiPagoMP.Services
         public int GenerarAbono(Entrada entrada) {
             return this._IPagoRepo.GenerarAbono(entrada);
         }
-        public string ConsultarComercio(Entrada entrada) {
+        public Entrada ConsultarComercio(Entrada entrada) {
             return this._IPagoRepo.ConsultarComercio(entrada);
         }
         public int ActualizarPago(Entrada entrada) {

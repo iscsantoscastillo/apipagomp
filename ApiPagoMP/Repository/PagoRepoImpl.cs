@@ -33,7 +33,7 @@ namespace ApiPagoMP.Repository
                         sqlCommand.Parameters["@referencia"].Value = entrada.Referencia;
 
                         sqlCommand.Parameters.Add("@plataforma", SqlDbType.VarChar);
-                        sqlCommand.Parameters["@plataforma"].Value = Constantes.PLATAFORMA_WILLYS;
+                        sqlCommand.Parameters["@plataforma"].Value = entrada.PlataformaMP;
 
                         sqlCommand.Parameters.Add("@monto_referencia", SqlDbType.Decimal);
                         sqlCommand.Parameters["@monto_referencia"].Value = 0;
@@ -89,7 +89,7 @@ namespace ApiPagoMP.Repository
                         sqlCommand.Parameters["@referencia"].Value = entrada.Referencia;
 
                         sqlCommand.Parameters.Add("@plataforma", SqlDbType.VarChar);
-                        sqlCommand.Parameters["@plataforma"].Value = Constantes.PLATAFORMA_WILLYS;
+                        sqlCommand.Parameters["@plataforma"].Value = entrada.PlataformaMP;
 
                         sqlCommand.Parameters.Add("@monto_referencia", SqlDbType.Decimal);
                         sqlCommand.Parameters["@monto_referencia"].Value = entrada.MontoPago;
@@ -151,7 +151,11 @@ namespace ApiPagoMP.Repository
                                     comercio.NombreUsuario = sqlDataReader["usuario"].ToString();
                                     comercio.Contrasena = sqlDataReader["contrasena"].ToString();
                                     comercio.Estatus = Int32.Parse(sqlDataReader["estatus"].ToString()) == 1? true:false;
-
+                                    comercio.CajaMP = sqlDataReader["caja_mp"].ToString();
+                                    comercio.ReferenciaMP = sqlDataReader["referencia_mp"].ToString();
+                                    comercio.CveFormaPagoMP = sqlDataReader["cve_forma_pago_mp"].ToString();
+                                    comercio.PlataformaMP = sqlDataReader["plataforma_mp"].ToString();
+                                    comercio.SucursalMP = sqlDataReader["sucursal_mp"].ToString();
                                 }
                             }
                         }
@@ -470,22 +474,22 @@ namespace ApiPagoMP.Repository
                         sqlCommand.Parameters["@clave_solicitud"].Value = entrada.Referencia;
 
                         sqlCommand.Parameters.Add("@cve_sucursal", SqlDbType.VarChar);
-                        sqlCommand.Parameters["@cve_sucursal"].Value = entrada.DescripcionComercio;
+                        sqlCommand.Parameters["@cve_sucursal"].Value = entrada.SucursalMP;
 
                         sqlCommand.Parameters.Add("@cve_vendedor", SqlDbType.VarChar);
                         sqlCommand.Parameters["@cve_vendedor"].Value = entrada.IDDevuelto.ToString();
                         
                         sqlCommand.Parameters.Add("@caja", SqlDbType.VarChar);
-                        sqlCommand.Parameters["@caja"].Value = "000006";
+                        sqlCommand.Parameters["@caja"].Value = entrada.CajaMP;
                         
                         sqlCommand.Parameters.Add("@referencia", SqlDbType.VarChar);
-                        sqlCommand.Parameters["@referencia"].Value = "RUWILLYS";
+                        sqlCommand.Parameters["@referencia"].Value = entrada.ReferenciaMP;
 
                         sqlCommand.Parameters.Add("@total_pagado", SqlDbType.VarChar);
                         sqlCommand.Parameters["@total_pagado"].Value = entrada.MontoPago.ToString();
 
                         sqlCommand.Parameters.Add("@cve_forma_pago", SqlDbType.VarChar);
-                        sqlCommand.Parameters["@cve_forma_pago"].Value = "";
+                        sqlCommand.Parameters["@cve_forma_pago"].Value = entrada.CveFormaPagoMP;
 
                         using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
                         {
@@ -509,9 +513,9 @@ namespace ApiPagoMP.Repository
             }
             return registro;
         }
-        public string ConsultarComercio(Entrada entrada) {            
+        public Entrada ConsultarComercio(Entrada entrada) {            
             log.Info("Ingresando al método ConsultarComercio");
-            string descripcion = null;
+            
             Conexion conexion = new Conexion();
             try
             {
@@ -530,12 +534,15 @@ namespace ApiPagoMP.Repository
                         {
                             if (sqlDataReader.HasRows)
                             {
-                                log.Info("Se encontró la información correctamente.");
-                                
+                                log.Info("Se encontró la información correctamente.");                                                                
+
                                 while (sqlDataReader.Read())
                                 {
-
-                                    descripcion = sqlDataReader["descripcion"].ToString();
+                                    entrada.CajaMP = sqlDataReader["caja_mp"].ToString();
+                                    entrada.ReferenciaMP = sqlDataReader["referencia_mp"].ToString();
+                                    entrada.CveFormaPagoMP = sqlDataReader["cve_forma_pago_mp"].ToString();
+                                    entrada.PlataformaMP = sqlDataReader["plataforma_mp"].ToString();
+                                    entrada.SucursalMP = sqlDataReader["sucursal_mp"].ToString();                                    
 
                                 }
                             }
@@ -549,7 +556,7 @@ namespace ApiPagoMP.Repository
                 log.Error("Ocurrió un error al momento de consultar la información en el servidor: " + ex.Message);
                 throw new Exception(ex.Message);
             }
-            return descripcion;
+            return entrada;
         }
         public int ActualizarPago(Entrada entrada) {
             int filasAfectadas = 0;

@@ -12,5 +12,10 @@ namespace ApiPagoMP.Models
         public string NombreUsuario { get; set; }
         public string Contrasena { get; set; }
         public bool Estatus { get; set; }
+        public string CajaMP { get; set; }
+        public string ReferenciaMP { get; set; }
+        public string CveFormaPagoMP { get; set; }
+        public string PlataformaMP { get; set; }
+        public string SucursalMP { get; set; }
     }
 }

@@ -61,8 +61,7 @@
         public const string ERROR_METODO_INVALIDO           = "06";
         
         public const string SISTEMA                         = "API_PAGO_MP";
-        public const string PLATAFORMA_WILLYS               = "WILLYS";
-
+       
         //Datetime to Ticks
         //http://www.datetimetoticks-converter.com/
         public const long FECHA_MINIMA                      = 552878352000000000;  //1753-01-01 12:00:00.000

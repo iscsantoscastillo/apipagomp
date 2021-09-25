@@ -60,6 +60,12 @@ namespace ApiPagoMP.Controllers
                         Comercio comercio = this._iPagoService.GetComercio(entrada.Comercio);
                         if (comercio != null)
                         {
+                            entrada.CajaMP = comercio.CajaMP;
+                            entrada.SucursalMP = comercio.SucursalMP;
+                            entrada.PlataformaMP = comercio.PlataformaMP;
+                            entrada.ReferenciaMP = comercio.ReferenciaMP;
+                            entrada.CveFormaPagoMP = comercio.CveFormaPagoMP;
+
                             var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
                             var body = Request.Body;
                             var todaCadena = authHeader.ToString();
@@ -104,47 +110,7 @@ namespace ApiPagoMP.Controllers
                                 codigoError = Constantes.ERROR_REFERENCIA_NO_VALIDA,
                                 mensajeError = error.Descripcion
                             }) ;
-                        }
-
-                        //if (entrada.Referencia.Equals("SL202009000016"))
-                        //{
-                        //    return Ok(new
-                        //    {
-                        //        exitoso = false,                                
-                        //        codigoError = "02",
-                        //        mensajeError = "Error general"
-                        //    });
-                        //}
-
-                        //if (!entrada.Comercio.Equals("5001"))
-                        //{
-                        //    return Ok(new
-                        //    {
-                        //        exitoso = false,                                
-                        //        codigoError = "03",
-                        //        mensajeError = "Comercio no autorizado"
-                        //    });
-                        //}
-
-                        //if (entrada.Referencia.Equals("SL202009000017"))
-                        //{
-                        //    return Ok(new
-                        //    {
-                        //        exitoso = false,                                
-                        //        codigoError = "04",
-                        //        mensajeError = "Servicio en mantenimiento"
-                        //    });
-                        //}
-
-                        //if (entrada.Referencia.Equals("SL202009000018"))
-                        //{
-                        //    return Ok(new
-                        //    {
-                        //        exitoso = false,                               
-                        //        codigoError = "05",
-                        //        mensajeError = "Error no definido"
-                        //    });
-                        //}                        
+                        }                       
                             
                         mensaje = "Validación de Referencia exitosa.";
                         log.Info(mensaje);
@@ -178,6 +144,12 @@ namespace ApiPagoMP.Controllers
                         Comercio comercio = this._iPagoService.GetComercio(entrada.Comercio);
                         if (comercio != null)
                         {
+                            entrada.CajaMP = comercio.CajaMP;
+                            entrada.SucursalMP = comercio.SucursalMP;
+                            entrada.PlataformaMP = comercio.PlataformaMP;
+                            entrada.ReferenciaMP = comercio.ReferenciaMP;
+                            entrada.CveFormaPagoMP = comercio.CveFormaPagoMP;
+
                             var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
                             var body = Request.Body;
                             var todaCadena = authHeader.ToString();
@@ -246,6 +218,12 @@ namespace ApiPagoMP.Controllers
                         Comercio comercio = this._iPagoService.GetComercio(entrada.Comercio);
                         if (comercio != null)
                         {
+                            entrada.CajaMP = comercio.CajaMP;
+                            entrada.SucursalMP = comercio.SucursalMP;
+                            entrada.PlataformaMP = comercio.PlataformaMP;
+                            entrada.ReferenciaMP = comercio.ReferenciaMP;
+                            entrada.CveFormaPagoMP = comercio.CveFormaPagoMP;
+
                             var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
                             var body = Request.Body;
                             var todaCadena = authHeader.ToString();
@@ -329,8 +307,7 @@ namespace ApiPagoMP.Controllers
                         }
 
                         //Consultar descripcion(nombre) del comercio
-                        string descComercio = this._iPagoService.ConsultarComercio(entrada);
-                        entrada.DescripcionComercio = descComercio;
+                        entrada = this._iPagoService.ConsultarComercio(entrada);                        
 
                         //Se obtiene el id consecutivo de pagomp_pago
                         int idDevuelto = this._iPagoService.GrabarPago(entrada);
