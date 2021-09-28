@@ -131,6 +131,13 @@ namespace ApiPagoMP.Controllers
                     #region AUTORIZAR MONTO
                     else if (entrada.Evento.Equals(Constantes.AUTORIZAR_MONTO))
                     {
+                        if (entrada.MontoPago <= 0) {
+                            return Ok(new
+                            {
+                                exitoso = false
+                            });
+                        }
+                        
                         //Se valida el monto y que este no contenga centavos.
                         var x = entrada.MontoPago - Math.Truncate(entrada.MontoPago);
                         if (x > 0) {

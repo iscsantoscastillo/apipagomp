@@ -1,6 +1,6 @@
 USE [SoftCredito]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_pmp_pago_error_con]    Script Date: 07/09/2021 10:35:47 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[sp_pmp_pago_error_con]    Script Date: 27/09/2021 02:15:29 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

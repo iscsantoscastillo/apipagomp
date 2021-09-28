@@ -1,6 +1,6 @@
 USE [SoftCredito]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_pmp_pago_bitacora_ins]    Script Date: 07/09/2021 09:36:26 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[sp_pmp_pago_bitacora_ins]    Script Date: 27/09/2021 02:01:59 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

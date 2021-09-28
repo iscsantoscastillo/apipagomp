@@ -1,6 +1,6 @@
 USE [SoftCredito]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_mpf_referencia_unica_validate]    Script Date: 17/09/2021 11:04:18 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[sp_mpf_referencia_unica_validate]    Script Date: 27/09/2021 01:58:03 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -44,6 +44,11 @@ BEGIN
          AND referencia.referencia = @referencia
          AND referencia.plataforma = @plataforma
        ORDER BY fecha_alta DESC
+	  --   IF @pago_minimo >50 and @plataforma = 'WILLYS'
+   --BEGIN
+   --   SET @mensaje = CONCAT('La solicitud "',@cve_solicitud,'" Pago minimo es mayora 50. Valide su información');
+   --   THROW 51002, @mensaje, 1;
+   --END
 
    END
 
@@ -78,9 +83,10 @@ BEGIN
    ELSE 
    BEGIN
       IF @plataforma <> 'WILLYS'
+	
          SELECT @pagable AS payable
-              , CAST(ISNULL(CASE WHEN @saldo >= @pago_minimo THEN @pago_minimo ELSE @saldo END, 0.0) AS float) AS min_amount
-              , CAST(ISNULL(CASE WHEN @saldo >= @pago_maximo THEN @pago_maximo ELSE @saldo END, 0.0) AS float) AS max_amount
+              , CAST(ISNULL(CASE WHEN @saldo >= 50 THEN @pago_minimo ELSE @saldo END, 0.0) AS float) AS min_amount
+              , CAST(ISNULL(CASE WHEN @saldo >= 100 THEN @pago_maximo ELSE @saldo END, 0.0) AS float) AS max_amount
       ELSE
          SELECT @pagable AS payable
               , CAST(ISNULL(CASE WHEN @saldo >= @pago_minimo THEN @pago_minimo ELSE @saldo END, 0.0) AS float) AS min_amount

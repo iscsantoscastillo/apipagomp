@@ -1,6 +1,6 @@
 USE [SoftCredito]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_pmp_pago_notipago_ins]    Script Date: 13/09/2021 11:51:36 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[sp_pmp_pago_notipago_ins]    Script Date: 27/09/2021 02:04:13 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -13,7 +13,8 @@ ALTER PROC [dbo].[sp_pmp_pago_notipago_ins]
 	@TRANSACCION VARCHAR(20),
 	@FECHAHORATRX BIGINT,
 	@CLAVESUCURSAL VARCHAR(30),
-	@USUARIOALTA VARCHAR(30)
+	@USUARIOALTA VARCHAR(30),
+	@ID_DEVUELTO INT OUT
 AS
 
 INSERT INTO pagomp_pago
@@ -37,4 +38,4 @@ VALUES
 	1,
 	@USUARIOALTA)
 
-SELECT @@IDENTITY AS registro
+SET @ID_DEVUELTO = @@IDENTITY

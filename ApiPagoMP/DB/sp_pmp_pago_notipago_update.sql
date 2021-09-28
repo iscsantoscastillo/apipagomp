@@ -1,11 +1,12 @@
 USE [SoftCredito]
 GO
+/****** Object:  StoredProcedure [dbo].[sp_pmp_pago_notipago_update]    Script Date: 27/09/2021 02:12:43 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 -- CREATE PROC [dbo].[sp_pmp_pago_notipago_update] 
-ALTER PROC sp_pmp_pago_notipago_update
+ALTER PROC [dbo].[sp_pmp_pago_notipago_update]
 	@ID_PAGO INT,
 	@AS_ID_ABONO BIGINT,
 	@USUARIO_ENV_SC VARCHAR(30),

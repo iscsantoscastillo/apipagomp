@@ -1,6 +1,6 @@
 USE [SoftCredito]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_pmp_pago_consultar_usuario_contrasena]    Script Date: 07/09/2021 10:28:12 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[sp_pmp_pago_consultar_usuario_contrasena]    Script Date: 27/09/2021 02:00:27 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
