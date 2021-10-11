@@ -314,7 +314,7 @@ namespace ApiPagoMP.Repository
                         sqlCommand.CommandType = CommandType.StoredProcedure;
 
                         sqlCommand.Parameters.Add("@REFERENCIA", SqlDbType.VarChar);
-                        sqlCommand.Parameters["@REFERENCIA"].Value = entrada.Referencia;
+                        sqlCommand.Parameters["@REFERENCIA"].Value = entrada.Referencia.ToUpper();
 
                         sqlCommand.Parameters.Add("@COMERCIO", SqlDbType.VarChar);
                         sqlCommand.Parameters["@COMERCIO"].Value = entrada.Comercio;

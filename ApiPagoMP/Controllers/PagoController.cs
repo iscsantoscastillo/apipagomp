@@ -102,16 +102,17 @@ namespace ApiPagoMP.Controllers
                         //Referencia
                         salida = this._iPagoService.validarReferencia(entrada);
 
-                        if (salida is null) {
+                        if (salida is null)
+                        {
                             error = this._iPagoService.ConsultarError(Constantes.ERROR_REFERENCIA_NO_VALIDA);
                             return Ok(new
                             {
                                 exitoso = false,
                                 codigoError = Constantes.ERROR_REFERENCIA_NO_VALIDA,
                                 mensajeError = error.Descripcion
-                            }) ;
-                        }                       
-                            
+                            });
+                        }
+
                         mensaje = "Validación de Referencia exitosa.";
                         log.Info(mensaje);
 
@@ -124,29 +125,31 @@ namespace ApiPagoMP.Controllers
                             codigoError = String.Empty,
                             mensajeError = String.Empty
                         });
-                            
+
                     }
                     #endregion
-                    
+
                     #region AUTORIZAR MONTO
                     else if (entrada.Evento.Equals(Constantes.AUTORIZAR_MONTO))
                     {
-                        if (entrada.MontoPago <= 0) {
+                        if (entrada.MontoPago <= 0)
+                        {
                             return Ok(new
                             {
                                 exitoso = false
                             });
                         }
-                        
+
                         //Se valida el monto y que este no contenga centavos.
                         var x = entrada.MontoPago - Math.Truncate(entrada.MontoPago);
-                        if (x > 0) {
+                        if (x > 0)
+                        {
                             return Ok(new
                             {
                                 exitoso = false
                             });
                         }
-                        
+
                         //Validar el comercio
                         Comercio comercio = this._iPagoService.GetComercio(entrada.Comercio);
                         if (comercio != null)
@@ -174,8 +177,9 @@ namespace ApiPagoMP.Controllers
                                     exitoso = false
                                 });
                             }
-                        }else
-                        {                            
+                        }
+                        else
+                        {
                             return Ok(new
                             {
                                 exitoso = false
@@ -187,22 +191,23 @@ namespace ApiPagoMP.Controllers
                         {
                             return Ok(new
                             {
-                                exitoso = false                            
+                                exitoso = false
                             });
                         }
-                        else {                            
+                        else
+                        {
                             return Ok(new
                             {
                                 exitoso = true
-                            });                                                            
-                        }                                                                        
+                            });
+                        }
                     }
                     #endregion
-                    
+
                     #region NOTIFICAR PAGO
                     else if (entrada.Evento.Equals(Constantes.NOTIFICAR_PAGO))
                     {
-                       
+
                         //Se valida el monto y que este no contenga centavos.
                         var x = entrada.MontoPago - Math.Truncate(entrada.MontoPago);
                         if (x > 0)
@@ -214,7 +219,8 @@ namespace ApiPagoMP.Controllers
                             });
                         }
 
-                        if (!(entrada.MontoPago >= 1)) {
+                        if (!(entrada.MontoPago >= 1))
+                        {
                             return Ok(new
                             {
                                 exitoso = false,
@@ -259,7 +265,7 @@ namespace ApiPagoMP.Controllers
                             });
 
                         }
-                       
+
                         //Verificar que trx no esté vacía ni que fecha tenga cero o menos
                         if (entrada.NumeroTransaccion.Equals(String.Empty))
                         {
@@ -271,7 +277,8 @@ namespace ApiPagoMP.Controllers
                         }
 
                         //Se verifica intervalo de fecha valido
-                        if (entrada.FechaHoraTransaccion <= 0) {
+                        if (entrada.FechaHoraTransaccion <= 0)
+                        {
                             return Ok(new
                             {
                                 exitoso = false,
@@ -282,7 +289,8 @@ namespace ApiPagoMP.Controllers
                         //Verifica si: transaccion ya existe, comercio ya existe, clave_sucursal ya existe, referencia ya existe y estatus=1.
                         //Entonces devuelve true
                         bool existeTrx = this._iPagoService.ExisteTransaccion(entrada);
-                        if (existeTrx) {
+                        if (existeTrx)
+                        {
                             return Ok(new
                             {
                                 exitoso = false,
@@ -301,7 +309,8 @@ namespace ApiPagoMP.Controllers
                                 registradoAnteriormente = false
                             });
                         }
-                        else {
+                        else
+                        {
                             //if (entrada.MontoPago < salida.MontoMinimo || entrada.MontoPago > salida.MontoMaximo)
                             if (entrada.MontoPago <= 0)
                             {
@@ -314,7 +323,7 @@ namespace ApiPagoMP.Controllers
                         }
 
                         //Consultar descripcion(nombre) del comercio
-                        entrada = this._iPagoService.ConsultarComercio(entrada);                        
+                        entrada = this._iPagoService.ConsultarComercio(entrada);
 
                         //Se obtiene el id consecutivo de pagomp_pago
                         int idDevuelto = this._iPagoService.GrabarPago(entrada);
@@ -323,18 +332,20 @@ namespace ApiPagoMP.Controllers
                         try
                         {
                             int generado = this._iPagoService.GenerarAbono(entrada);
-                            if (generado > 0) {
+                            if (generado > 0)
+                            {
                                 entrada.AsIDAbono = generado;
                                 int filasAfectadas = this._iPagoService.ActualizarPago(entrada);
                             }
                         }
-                        catch (Exception ex) {
+                        catch (Exception ex)
+                        {
                             log.Error("Excepción al GenerarAbono: " + ex.Message);
                             return Ok(new
-                            {                                
+                            {
                                 exitoso = true,
                                 registradoAnteriormente = false
-                            }) ;
+                            });
                         }
 
                         return Ok(new
@@ -342,14 +353,93 @@ namespace ApiPagoMP.Controllers
                             exitoso = true,
                             registradoAnteriormente = false
                         });
-                                         
+
                     }
+
                     #endregion
-                    
-                    else {
+
+                    #region VALIDAR_TRANSACCION
+
+                    else if (entrada.Evento.Equals(Constantes.VALIDAR_TRANSACCION))
+                    {
+                        Comercio comercio = this._iPagoService.GetComercio(entrada.Comercio);
+                        if (comercio != null)
+                        {
+                            entrada.CajaMP = comercio.CajaMP;
+                            entrada.SucursalMP = comercio.SucursalMP;
+                            entrada.PlataformaMP = comercio.PlataformaMP;
+                            entrada.ReferenciaMP = comercio.ReferenciaMP;
+                            entrada.CveFormaPagoMP = comercio.CveFormaPagoMP;
+
+                            var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+                            var body = Request.Body;
+                            var todaCadena = authHeader.ToString();
+                            var soloCadena = todaCadena.Substring(Constantes.BASIC_AUTH.Length, todaCadena.Length - Constantes.BASIC_AUTH.Length);
+
+                            //Se desencripta cadena del Header y se obtienen usuario y contraseña 
+                            Seguridad seg = new Seguridad();
+                            Usuario usuario = seg.GetUsuario(soloCadena);
+
+                            if (!comercio.NombreUsuario.Equals(usuario.Nombre) ||
+                                !comercio.Contrasena.Equals(usuario.Contrasena))
+                            {
+                                return Ok(new
+                                {
+                                    exitoso = false,
+                                    existe = false
+                                });
+                            }
+                        }
+                        else
+                        {
+                            return Ok(new
+                            {
+                                exitoso = false,
+                                existe = false
+                            });
+
+                        }
+
+                        //Validar Referencia
+                        salida = this._iPagoService.validarReferencia(entrada);
+
+                        if (salida is null)
+                        {
+                            error = this._iPagoService.ConsultarError(Constantes.ERROR_REFERENCIA_NO_VALIDA);
+                            return Ok(new
+                            {
+                                exitoso = false,
+                                existe = false
+                            });
+                        }
+
+                        //Verifica si: transaccion ya existe, comercio ya existe, clave_sucursal ya existe, referencia ya existe y estatus=1.
+                        //Entonces devuelve true
+                        bool existeTrx = this._iPagoService.ExisteTransaccion(entrada);
+                        if (existeTrx)
+                        {
+                            return Ok(new
+                            {
+                                exitoso = true,
+                                existe = true
+                            });
+                        }
+                        else {
+                            return Ok(new
+                            {
+                                exitoso = true,
+                                existe = false
+                            });
+                        }
+                    }
+
+                    #endregion
+                    else
+                    {
                         error = this._iPagoService.ConsultarError(Constantes.ERROR_METODO_INVALIDO);
-                        return Ok(new { 
-                            exitoso = false,                           
+                        return Ok(new
+                        {
+                            exitoso = false,
                             codigoError = Constantes.ERROR_METODO_INVALIDO,
                             mensajeError = error.Descripcion
                         });

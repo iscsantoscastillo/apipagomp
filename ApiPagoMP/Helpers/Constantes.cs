@@ -51,6 +51,7 @@
         public const string VALIDAR_REFERENCIA = "validarReferencia";
         public const string AUTORIZAR_MONTO = "autorizarMonto";
         public const string NOTIFICAR_PAGO = "notificarPago";
+        public const string VALIDAR_TRANSACCION = "validarTransaccion";
 
         //Codigo de Errores
         public const string ERROR_REFERENCIA_NO_VALIDA      = "01";
