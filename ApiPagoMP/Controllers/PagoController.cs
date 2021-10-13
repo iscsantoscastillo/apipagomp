@@ -401,17 +401,17 @@ namespace ApiPagoMP.Controllers
                         }
 
                         //Validar Referencia
-                        salida = this._iPagoService.validarReferencia(entrada);
+                        //salida = this._iPagoService.validarReferencia(entrada);
 
-                        if (salida is null)
-                        {
-                            error = this._iPagoService.ConsultarError(Constantes.ERROR_REFERENCIA_NO_VALIDA);
-                            return Ok(new
-                            {
-                                exitoso = false,
-                                existe = false
-                            });
-                        }
+                        //if (salida is null)
+                        //{
+                        //    error = this._iPagoService.ConsultarError(Constantes.ERROR_REFERENCIA_NO_VALIDA);
+                        //    return Ok(new
+                        //    {
+                        //        exitoso = false,
+                        //        existe = false
+                        //    });
+                        //}
 
                         //Verifica si: transaccion ya existe, comercio ya existe, clave_sucursal ya existe, referencia ya existe y estatus=1.
                         //Entonces devuelve true
